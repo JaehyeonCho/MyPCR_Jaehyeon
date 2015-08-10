@@ -42,7 +42,7 @@ public class PCR_Task
 	
 	// Timer ?? ??????? ???? ???
 	private Timer m_NopTimer = null;		//프로토콜을 날리는 timer
-	private Timer m_GoTimer  = null;
+	private Timer m_GoTimer   = null;
 	private boolean m_TimerFlag = false;
 	
 	// Rx, Tx ????? ?????????.
@@ -502,7 +502,7 @@ public class PCR_Task
 			hour = minute / 60;
 			minute = minute - hour * 60;
 			
-			if( IsRunning );
+			if( IsRunning && totalTime != 0 )
 				m_MainUI.getProtocolText().setRemainingTimeText((hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second));
 		}
 		

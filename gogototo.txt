@@ -1,0 +1,19 @@
+int totaltime = 0;
+for(int i=0; i<actions.length; i++)
+{
+	if(actions[i].getLabel().equals("GOTO"))
+	{
+		int go = Integer.parseInt(actions[i].getTemp());
+		int count = Integer.parseInt(actions[i].getTime());
+		for(int j=0; j<count; j++)
+		{
+			for(int k=go-1; k<i; k++)
+			{
+				System.out.print(k+" ");
+				totaltime += Integer.parseInt(actions[k].getTime());
+			}
+		}
+	}
+	else
+		totaltime += Integer.parseInt(actions[i].getTime());
+}

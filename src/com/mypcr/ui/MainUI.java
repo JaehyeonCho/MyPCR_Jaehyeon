@@ -466,6 +466,32 @@ public class MainUI extends JFrame implements Handler, DeviceChange, KeyListener
 					m_ActionList = actions;
 					// 읽어온 프로토콜 파일의 이름을 상단에 표시한다.
 					m_ProtocolText.setProtocolText(actions[0].getProtocolName());
+					// 프로토콜 파일의 시간을 오른쪽 상단에 표시.
+					int totaltime = 0;
+					int start = 0;
+					for(int i=0; i<actions.length; i++)
+					{
+						if(actions[i].getLabel().equals("GOTO"))
+						{
+							String goto_label = actions[i].getTemp();
+							int count = Integer.parseInt(actions[i].getTime());
+							for(int k=0; k<i; k++)
+							{
+								if((actions[k].getLabel()).equals(goto_label))
+								{
+									start = k;
+									for(int j=0; j<count; j++)
+									{
+										for(int c=start; c<i; c++)
+											totaltime += Integer.parseInt(actions[c].getTime());
+									}
+								}
+							}
+						}
+						else
+							totaltime += Integer.parseInt(actions[i].getTime());
+					}
+					m_ProtocolText.setRemainingTimeText(String.format("%02d:%02d:%02d", totaltime/3600, totaltime/60-((totaltime/3600)*60), totaltime%60));
 					// 읽었으니 플래그 true
 					IsProtocolRead = true;
 				}

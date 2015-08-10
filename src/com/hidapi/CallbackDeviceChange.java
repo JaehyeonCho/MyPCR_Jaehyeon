@@ -54,15 +54,15 @@ public class CallbackDeviceChange extends Thread
 					for( HIDDeviceInfo device : devices )
 					{
 						// 150507 YJ serial number check added
-						//if( serialNumber != null && device.getSerial_number() != null ){
+						if( serialNumber != null && device.getSerial_number() != null ){
 							if( device.getVendor_id() == DeviceConstant.VENDOR_ID && 
-									device.getProduct_id() == DeviceConstant.PRODUCT_ID /* && 
-									device.getSerial_number().equals(serialNumber)*/)
+									device.getProduct_id() == DeviceConstant.PRODUCT_ID  && 
+									device.getSerial_number().equals(serialNumber))
 							{
 								cnt++;
 								firmwareVersion = device.getRelease_number();		//펌웨어 버전 받아서
 							}
-						//}
+						}
 					}
 					
 					if( previous_counter != cnt ){

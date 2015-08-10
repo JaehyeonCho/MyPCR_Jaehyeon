@@ -163,8 +163,10 @@ public class Main
 		
 		//Main m = new Main();		//°´Ã¼»ý¼º
 		//while(true);
+		String selectNumber = "MyPCR333333";
 		
 		MainUI main = new MainUI();
+		main.setSerialNumber(selectNumber);
 		main.Run();
 		
 		/*
