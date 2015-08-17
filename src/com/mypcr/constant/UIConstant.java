@@ -9,8 +9,8 @@ public class UIConstant
 	public static final String REMAINING_TIME		 	=	"0:00:00";
 	public static final String FONT_NAME				=	"¡¾¨ù¢¬©÷";
 	public static final String DEFAULT_STATUS_MESSAGE0	=	"Not Connected";
-	public static final String DEFAULT_STATUS_MESSAGE1	=	"0.0 ??";
-	public static final String DEFAULT_STATUS_MESSAGE2	=	"0.0 ??";
+	public static final String DEFAULT_STATUS_MESSAGE1	=	"0.0 ¢ªC";
+	public static final String DEFAULT_STATUS_MESSAGE2	=	"0.0 ¢ªC";
 	public static final String BUTTON_START_TEXT		=	"Start";
 	public static final String BUTTON_STOP_TEXT			=	"Stop";
 	public static final String BUTTON_READPROTOCOL_TEXT	=	"Read Protocol";

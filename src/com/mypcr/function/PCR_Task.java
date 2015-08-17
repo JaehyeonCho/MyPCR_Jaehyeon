@@ -21,7 +21,8 @@ import com.mypcr.timer.NopTimer;
 import com.mypcr.ui.ButtonUI;
 import com.mypcr.ui.MainUI;
 import com.mypcr.ui.ProgressDialog;
-
+	
+/*--통신--*/
 public class PCR_Task 
 {
 	private static PCR_Task instance = null;
@@ -285,19 +286,21 @@ public class PCR_Task
 		}
 	}
 	
+	//타이머는 계속 동작. 프로토콜을 뿌려줌. 내가 불러온 프로토콜이 아닌 기기에 있는 프로토콜을 가지고옴
 	public void Get_DeviceProtocol()
 	{
+		//한번만 들어오기 위해 && STOP 버튼을 누른 적이 있는지 확인 -> stop을 누른적이 있으면 false로 바뀜
 		if( !IsDeviceCheck && m_MainUI.IsNoStop )
 		{
 			IsDeviceCheck = true;
 			
-			//불러온 total 액션이 없는 경우
+			//불러온 total 액션이 없는 경우.(갯수확인)
 			if( m_RxAction.getTotal_Action() == 0 )
 			{
 				// Recent Protocol 최근에 불러온 프로토콜이 있는지 확인.
 				String path = Functions.Get_RecentProtocolPath();
 				
-				// ??? ????? ?????? ???? ????
+				// 불러온 Recent Protocol file이 없으면 null이 저장
 				if( path != null )
 				{
 					Action[] actions = null;
@@ -309,18 +312,20 @@ public class PCR_Task
 						JOptionPane.showMessageDialog(null, "No Recent Protocol File! Please Read Protocol!");
 						return;
 					}
+					//나 지금 프로토콜을 읽었당. 하고 Main에 알려줌
 					m_MainUI.OnHandleMessage(Handler.MESSAGE_READ_PROTOCOL, actions);
 				}
 				else
 					JOptionPane.showMessageDialog(null, "No Recent Protocol File! Please Read Protocol!");
 				return;
 			}
-
+			
+			//기기에서 프로토콜을 받는 방법
 			byte readLine = 0;
-			int reqline = 0;
-			ArrayList<Action> actions = new ArrayList<Action>();
+			int reqline = 0;		//내가 몇번째 프로토콜을 얻을건지. 요청에 대한 답장을 기다림
+			ArrayList<Action> actions = new ArrayList<Action>();		//저쪽에 actions이 몇개있는지 모르기때문에 ArrayList를 씀
 			final ProgressDialog dialog = new ProgressDialog(m_MainUI, "Checking the state of the equipment", (int)m_RxAction.getTotal_Action());
-			Thread tempThread = new Thread()
+			Thread tempThread = new Thread()	//Model을 띄우기위한 꼼수 
 			{
 				public void run()
 				{
@@ -332,7 +337,7 @@ public class PCR_Task
 
 			while( readLine < (int)m_RxAction.getTotal_Action() )
 			{
-				dialog.setProgressValue(readLine);
+				dialog.setProgressValue(readLine);		//read Line만큼 prgress 증가
 				try
 				{
 					m_MainUI.getDevice().write( m_TxAction.Tx_RequestLine(readLine) );
@@ -347,32 +352,34 @@ public class PCR_Task
 					
 					byte[] readBuffer = new byte[65];
 					
-					if( m_MainUI.getDevice().read(readBuffer) != 0 )
+					if( m_MainUI.getDevice().read(readBuffer) != 0 )		//데이터를 받음
 					{
 						RxAction tempAction = new RxAction();
-						tempAction.set_Info(readBuffer);
+						tempAction.set_Info(readBuffer);		//데이터를 버퍼에 넣고
 						
-						reqline = readBuffer[RxAction.RX_REQLINE];
+						reqline = readBuffer[RxAction.RX_REQLINE];		//확인
 						m_RxAction.setTotal_Action( tempAction.getTotal_Action() );
 						
-						if( reqline == readLine )
+						if( reqline == readLine )		//내가 요청한것과 보내온 값이 일치하면
 						{
-							Action action = new Action("Device Protocol");
+							Action action = new Action("Device Protocol");		//프로토콜을 받아옴
 							if( (readBuffer[RxAction.RX_LABEL] & 0xff) != RxAction.AF_GOTO )
 							{
-								action.setLabel("" + readBuffer[RxAction.RX_LABEL]);
-								action.setTemp("" + readBuffer[RxAction.RX_TEMP]);
-								int time = ((int)(readBuffer[RxAction.RX_TIMEH]*256.) + (int)(readBuffer[RxAction.RX_TIMEL]));
+								//0xff해주고 int형으로 변환	-> BYTE 통신
+								action.setLabel("" + (int)(readBuffer[RxAction.RX_LABEL]&0xff));
+								action.setTemp("" + (int)(readBuffer[RxAction.RX_TEMP]&0xff));
+								int time = ((int)((readBuffer[RxAction.RX_TIMEH]&0xff)*256.) + (int)(readBuffer[RxAction.RX_TIMEL]&0xff));
 								action.setTime("" + time);
 							}
 							else
 							{
+								//0xff해주고 int형으로 변환	-> BYTE 통신
 								action.setLabel("GOTO");
-								action.setTemp("" + readBuffer[RxAction.RX_TEMP]);
-								int time = ((int)(readBuffer[RxAction.RX_TIMEH]*256.) + (int)(readBuffer[RxAction.RX_TIMEL]));
+								action.setTemp("" + (int)(readBuffer[RxAction.RX_TEMP]&0xff));
+								int time = ((int)((readBuffer[RxAction.RX_TIMEH]&0xff)*256.) + (int)(readBuffer[RxAction.RX_TIMEL]&0xff));
 								action.setTime("" + time);
 							}
-							actions.add(action);
+							actions.add(action);		//기기에있는 프로토콜을 받아옴
 							readLine++;
 						}
 					}
@@ -393,7 +400,7 @@ public class PCR_Task
 				}
 			}
 			
-			// ??????? action ?? ?????? ????..
+			// 리스트에 띄워줌
 			Action[] tempAction = new Action[actions.size()];
 			for(int i=0; i<tempAction.length; i++)
 			{
@@ -404,6 +411,7 @@ public class PCR_Task
 			}
 			m_MainUI.OnHandleMessage(Handler.MESSAGE_READ_PROTOCOL, tempAction);
 			
+			//delay 1초
 			Thread tempThread2 = new Thread()
 			{
 				public void run()
